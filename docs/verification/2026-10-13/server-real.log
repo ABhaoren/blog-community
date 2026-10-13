@@ -1,0 +1,46 @@
+[13/Oct/2026 12:41:11] "GET /accounts/login/?next=/article/1/ HTTP/1.1" 200 6935
+Not Found: /favicon.ico
+[13/Oct/2026 12:41:12] "GET /favicon.ico HTTP/1.1" 404 20539
+[13/Oct/2026 12:41:13] "POST /accounts/login/ HTTP/1.1" 302 0
+[13/Oct/2026 12:41:13] "GET /article/1/ HTTP/1.1" 200 16465
+Not Found: /media/avatars/default.png
+[13/Oct/2026 12:41:13] "GET /media/avatars/default.png HTTP/1.1" 404 20828
+[13/Oct/2026 12:41:18] "POST /article/1/ai_parse/ HTTP/1.1" 200 2065
+[13/Oct/2026 12:41:45] "GET /article/1/ HTTP/1.1" 200 16465
+Not Found: /media/avatars/default.png
+[13/Oct/2026 12:41:45] "GET /media/avatars/default.png HTTP/1.1" 404 20828
+Not Found: /favicon.ico
+[13/Oct/2026 12:41:47] "GET /favicon.ico HTTP/1.1" 404 20539
+[13/Oct/2026 12:41:47] "POST /article/1/ai_parse/ HTTP/1.1" 200 2064
+[13/Oct/2026 12:41:48] "GET /article/1/ HTTP/1.1" 200 13987
+Not Found: /media/avatars/default.png
+[13/Oct/2026 12:41:48] "GET /media/avatars/default.png HTTP/1.1" 404 20828
+Not Found: /favicon.ico
+[13/Oct/2026 12:41:50] "GET /favicon.ico HTTP/1.1" 404 20539
+[13/Oct/2026 12:41:50] "POST /article/1/ai_parse/ HTTP/1.1" 302 0
+[13/Oct/2026 12:41:50] "GET /accounts/login/?next=/article/1/ai_parse/ HTTP/1.1" 200 6944
+[13/Oct/2026 12:41:54] "GET /article/1/edit/ HTTP/1.1" 200 11741
+[13/Oct/2026 12:41:54] "GET /static/ckeditor/ckeditor.css HTTP/1.1" 200 672
+[13/Oct/2026 12:41:54] "GET /static/ckeditor/ckeditor-init.js HTTP/1.1" 200 1526
+[13/Oct/2026 12:41:54] "GET /static/ckeditor/fixups.js HTTP/1.1" 200 168
+[13/Oct/2026 12:41:54] "GET /static/ckeditor/ckeditor/ckeditor.js HTTP/1.1" 200 759716
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/config.js?t=N5UC HTTP/1.1" 200 336
+Not Found: /favicon.ico
+[13/Oct/2026 12:41:55] "GET /favicon.ico HTTP/1.1" 404 20539
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/skins/moono-lisa/editor.css?t=N5UC HTTP/1.1" 200 48309
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/lang/zh-cn.js?t=N5UC HTTP/1.1" 200 17901
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/styles.js?t=N5UC HTTP/1.1" 200 5577
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/image2/plugin.js?t=N5UC HTTP/1.1" 200 13531
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/scayt/skins/moono-lisa/scayt.css?t=N5UC HTTP/1.1" 200 381
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/tableselection/styles/tableselection.css?t=N5UC HTTP/1.1" 200 1145
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/scayt/dialogs/dialog.css?t=N5UC HTTP/1.1" 200 419
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/image2/lang/zh-cn.js?t=N5UC HTTP/1.1" 200 412
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/dialog/styles/dialog.css?t=N5UC HTTP/1.1" 200 249
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/plugins/copyformatting/styles/copyformatting.css?t=N5UC HTTP/1.1" 200 1511
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/skins/moono-lisa/icons.png?t=4a1fb11f44 HTTP/1.1" 200 12237
+[13/Oct/2026 12:41:55] "GET /static/ckeditor/ckeditor/contents.css?t=N5UC HTTP/1.1" 200 3092
+[13/Oct/2026 12:41:56] "POST /article/1/edit/ HTTP/1.1" 302 0
+[13/Oct/2026 12:41:56] "GET /article/1/ HTTP/1.1" 200 16486
+Not Found: /media/avatars/default.png
+[13/Oct/2026 12:41:56] "GET /media/avatars/default.png HTTP/1.1" 404 20828
+[13/Oct/2026 12:41:56] "POST /article/1/ai_parse/ HTTP/1.1" 200 2064

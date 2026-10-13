@@ -1,0 +1,32 @@
+<div class="ms-4 border-start ps-3 mt-2">
+    <div class="d-flex align-items-center mb-1">
+        <img src="{{ comment.user.userprofile.avatar.url }}" class="rounded-circle me-2" width="30" height="30" alt="头像">
+        <strong>
+            {{ comment.user.username }}
+            {% if comment.parent %}
+                回复了 {{ comment.parent.user.username }}
+            {% endif %}
+        </strong>：
+        {{ comment.content|safe }}
+    </div>
+    <small class="text-muted ms-5">{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+
+    <div class="ms-5 mt-1 mb-2">
+        <button class="btn btn-sm btn-outline-secondary reply-btn" data-comment-id="{{ comment.id }}" data-username="{{ comment.user.username }}">回复</button>
+        {% if comment.user == user %}
+            <form method="post" action="{% url 'delete_comment' comment.id %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+            </form>
+        {% endif %}
+     
+         <a href="{% url 'report' 'article' comment.user.id %}" class="text-danger">举报</a>
+
+
+
+    </div>
+
+    {% for reply in comment.replies.all %}
+        {% include "blogapp/comment_recursive.html" with comment=reply user=user %}
+    {% endfor %}
+</div>

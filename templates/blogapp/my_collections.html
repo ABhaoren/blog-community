@@ -1,0 +1,16 @@
+{% extends 'blogapp/base.html' %}
+{% block title %}我的收藏{% endblock %}
+
+{% block content %}
+<h3>我收藏的文章</h3>
+<ul class="list-group">
+    {% for article in articles %}
+        <li class="list-group-item">
+            <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+            <span class="text-muted float-end">作者：{{ article.author.username }}</span>
+        </li>
+    {% empty %}
+        <li class="list-group-item text-muted">你还没有收藏任何文章。</li>
+    {% endfor %}
+</ul>
+{% endblock %}

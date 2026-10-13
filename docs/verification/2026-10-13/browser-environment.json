@@ -1,0 +1,11 @@
+{
+  "time": "2026-10-13 12:41:13 +08:00",
+  "browser": "155.0.4283.45",
+  "viewport": {
+    "width": 1440,
+    "height": 1100
+  },
+  "mode": "headless Edge through Playwright",
+  "login": "real browser form submission",
+  "original_database_used": false
+}

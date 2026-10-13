@@ -1,0 +1,42 @@
+{
+  "time": "2026-10-13 12:41:47 +08:00",
+  "case": "V2",
+  "browser": "155.0.4283.45",
+  "url": "http://127.0.0.1:18765/article/1/",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:18765/article/1/ai_parse/",
+    "body": "{}",
+    "csrf_header_present": true,
+    "authorization_header_present": false
+  },
+  "response": {
+    "status": 200,
+    "content_type": "application/json",
+    "location": null,
+    "json": {
+      "reply": "<p>这篇文章是一则关于社区图书交换活动的通知，核心信息如下：</p><p>**核心观点**</p><p>社区将举办图书交换活动，鼓励居民参与，并对时间、地点、携带数量、登记要求、费用及书籍合法性作出明确规定。</p><p>**内容结构**</p><p>1. **活动基本信息**：时间（周六下午两点）、地点（一楼阅览室）。</p><p>2. **参与规则**：每人最多带三本书；需在周五18点前登记书名。</p><p>3. **费用与限制**：活动免费；禁止交换盗版书。</p><p>4. **组织安排**：志愿者负责登记和分类。</p><p>**关键词**</p><p>社区图书交换、周六下午两点、一楼阅览室、最多三本、周五18点前、登记书名、免费、不交换盗版书、志愿者、登记、分类。</p><p>**阅读建议**</p><ul><li>若打算参加，请优先记住**登记截止时间**和**携带数量上限**，避免错过或超量。</li><li>提前整理好要交换的书名，按时登记。</li><li>注意只带正版书，现场配合志愿者完成登记和分类。</li></ul>",
+      "cached": true
+    }
+  },
+  "response_chain": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:18765/article/1/ai_parse/",
+      "status": 200,
+      "content_type": "application/json",
+      "location": null
+    }
+  ],
+  "duration_ms": 149,
+  "ui": {
+    "analysis_text": "这篇文章是一则关于社区图书交换活动的通知，核心信息如下：\n\n**核心观点**\n\n社区将举办图书交换活动，鼓励居民参与，并对时间、地点、携带数量、登记要求、费用及书籍合法性作出明确规定。\n\n**内容结构**\n\n1. **活动基本信息**：时间（周六下午两点）、地点（一楼阅览室）。\n\n2. **参与规则**：每人最多带三本书；需在周五18点前登记书名。\n\n3. **费用与限制**：活动免费；禁止交换盗版书。\n\n4. **组织安排**：志愿者负责登记和分类。\n\n**关键词**\n\n社区图书交换、周六下午两点、一楼阅览室、最多三本、周五18点前、登记书名、免费、不交换盗版书、志愿者、登记、分类。\n\n**阅读建议**\n\n若打算参加，请优先记住**登记截止时间**和**携带数量上限**，避免错过或超量。提前整理好要交换的书名，按时登记。注意只带正版书，现场配合志愿者完成登记和分类。\n\n\n",
+    "button_disabled": false
+  },
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "model_requests_before": 1,
+  "model_requests_after": 1,
+  "screenshot": "v2.png"
+}

@@ -1,0 +1,43 @@
+{
+  "time": "2026-10-13 12:41:53 +08:00",
+  "case": "V4",
+  "browser": "155.0.4283.45",
+  "url": "http://127.0.0.1:18766/article/2/",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:18766/article/2/ai_parse/",
+    "body": "{}",
+    "csrf_header_present": true,
+    "authorization_header_present": false
+  },
+  "response": {
+    "status": 503,
+    "content_type": "application/json",
+    "location": null,
+    "json": {
+      "error": "AI 服务尚未配置。"
+    }
+  },
+  "response_chain": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:18766/article/2/ai_parse/",
+      "status": 503,
+      "content_type": "application/json",
+      "location": null
+    }
+  ],
+  "duration_ms": 153,
+  "ui": {
+    "analysis_text": "AI解析失败，请稍后再试。",
+    "button_disabled": true
+  },
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "解析失败: TypeError: Cannot read properties of undefined (reading 'replace')\n    at formatAnalysis (http://127.0.0.1:18766/article/2/:410:23)\n    at http://127.0.0.1:18766/article/2/:375:69"
+  ],
+  "model_requests_before": 1,
+  "model_requests_after": 1,
+  "screenshot": "v4.png"
+}

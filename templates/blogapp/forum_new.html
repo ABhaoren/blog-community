@@ -1,0 +1,14 @@
+{% extends 'blogapp/base.html' %}
+{% block title %}创建帖子{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="mb-3">
+    <label class="form-label">附件上传</label>
+    <input type="file" name="file" multiple class="form-control">
+  </div>
+  <button class="btn btn-success">提交</button>
+  <a href="{% url 'forum_index' %}" class="btn btn-secondary">返回</a>
+</form>
+{% endblock %}

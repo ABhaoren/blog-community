@@ -1,0 +1,263 @@
+{% extends "blogapp/base.html" %}
+{% block title %}博客知识助手{% endblock %}
+
+{% block content %}
+<style>
+  .agent-shell {
+    max-width: 920px;
+    margin: 28px auto;
+  }
+  .agent-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #20252b;
+  }
+  .agent-header h2 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 0;
+  }
+  .agent-chat {
+    height: min(58vh, 560px);
+    min-height: 360px;
+    overflow-y: auto;
+    padding: 20px 4px;
+  }
+  .agent-message {
+    max-width: 82%;
+    margin-bottom: 18px;
+  }
+  .agent-message.user {
+    margin-left: auto;
+  }
+  .agent-role {
+    margin-bottom: 5px;
+    color: #6c757d;
+    font-size: 13px;
+  }
+  .agent-message.user .agent-role {
+    text-align: right;
+  }
+  .agent-bubble {
+    padding: 11px 14px;
+    border: 1px solid #d9dee3;
+    border-radius: 6px;
+    background: #fff;
+    color: #20252b;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .agent-message.user .agent-bubble {
+    border-color: #245a8d;
+    background: #245a8d;
+    color: #fff;
+  }
+  .agent-meta {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #6c757d;
+  }
+  .agent-sources {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .agent-source {
+    display: block;
+    padding: 9px 10px;
+    border: 1px solid #d9dee3;
+    border-radius: 5px;
+    color: #245a8d;
+    background: #f8f9fa;
+    text-decoration: none;
+  }
+  .agent-source:hover {
+    border-color: #245a8d;
+    text-decoration: none;
+  }
+  .agent-composer {
+    padding-top: 14px;
+    border-top: 1px solid #d9dee3;
+  }
+  .agent-input-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+  .agent-input {
+    min-height: 46px;
+    max-height: 150px;
+    resize: vertical;
+  }
+  .agent-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 9px;
+    color: #5d6770;
+    font-size: 13px;
+  }
+  .agent-status {
+    min-height: 20px;
+  }
+  @media (max-width: 640px) {
+    .agent-shell { margin: 16px 0; }
+    .agent-chat { min-height: 330px; }
+    .agent-message { max-width: 94%; }
+    .agent-input-row { grid-template-columns: 1fr; }
+    .agent-options { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+
+<div class="container agent-shell">
+  <div class="agent-header">
+    <h2>博客知识助手</h2>
+    <button type="button" id="new-session" class="btn btn-sm btn-outline-secondary">新对话</button>
+  </div>
+
+  <div id="chat-box" class="agent-chat" aria-live="polite"></div>
+
+  <form id="agent-form" class="agent-composer">
+    {% csrf_token %}
+    <div class="agent-input-row">
+      <textarea
+        id="chat-input"
+        class="form-control agent-input"
+        maxlength="4000"
+        placeholder="搜索站内文章、总结评论或生成内容草稿"
+        required
+      ></textarea>
+      <button id="send-btn" type="submit" class="btn btn-primary px-4">发送</button>
+    </div>
+    <div class="agent-options">
+      <label class="mb-0">
+        <input id="allow-write" type="checkbox">
+        允许保存私人草稿
+      </label>
+      <span id="agent-status" class="agent-status"></span>
+    </div>
+  </form>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById('agent-form');
+  const input = document.getElementById('chat-input');
+  const chatBox = document.getElementById('chat-box');
+  const sendButton = document.getElementById('send-btn');
+  const status = document.getElementById('agent-status');
+  const allowWrite = document.getElementById('allow-write');
+  let sessionId = sessionStorage.getItem('blogAgentSession');
+
+  function appendMessage(role, content, citations = [], toolSteps = [], skill = null) {
+    const wrapper = document.createElement('div');
+    wrapper.className = `agent-message ${role}`;
+
+    const roleLabel = document.createElement('div');
+    roleLabel.className = 'agent-role';
+    roleLabel.textContent = role === 'user' ? '你' : '知识助手';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'agent-bubble';
+    bubble.textContent = content;
+
+    wrapper.appendChild(roleLabel);
+    wrapper.appendChild(bubble);
+
+    if (toolSteps.length || skill) {
+      const meta = document.createElement('div');
+      meta.className = 'agent-meta';
+      const succeeded = toolSteps.filter(step => step.success).length;
+      const skillText = skill ? `${skill.label} Skill` : '';
+      const stepText = toolSteps.length ? `已完成 ${succeeded}/${toolSteps.length} 个工具步骤` : '';
+      meta.textContent = [skillText, stepText].filter(Boolean).join(' · ');
+      wrapper.appendChild(meta);
+    }
+
+    if (citations.length) {
+      const sources = document.createElement('div');
+      sources.className = 'agent-sources';
+      citations.forEach((citation, index) => {
+        const link = document.createElement('a');
+        link.className = 'agent-source';
+        link.href = citation.url || '#';
+        link.textContent = `${index + 1}. ${citation.title || '站内文章'}`;
+        sources.appendChild(link);
+      });
+      wrapper.appendChild(sources);
+    }
+
+    chatBox.appendChild(wrapper);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function setLoading(loading) {
+    input.disabled = loading;
+    sendButton.disabled = loading;
+    status.textContent = loading ? '正在检索并执行任务...' : '';
+  }
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage('user', message);
+    input.value = '';
+    setLoading(true);
+
+    try {
+      const response = await fetch("{% url 'ai_chat' %}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: JSON.stringify({
+          message,
+          session_id: sessionId,
+          allow_write: allowWrite.checked,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || '请求失败');
+
+      sessionId = data.session_id;
+      sessionStorage.setItem('blogAgentSession', sessionId);
+      appendMessage(
+        'assistant',
+        data.reply,
+        data.citations || [],
+        data.tool_steps || [],
+        data.skill || null
+      );
+    } catch (error) {
+      appendMessage('assistant', error.message || 'Agent 执行失败，请稍后重试。');
+    } finally {
+      setLoading(false);
+      input.focus();
+    }
+  });
+
+  document.getElementById('new-session').addEventListener('click', () => {
+    sessionId = null;
+    sessionStorage.removeItem('blogAgentSession');
+    chatBox.replaceChildren();
+    input.focus();
+  });
+
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+})();
+</script>
+{% endblock %}

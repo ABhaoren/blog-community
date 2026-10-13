@@ -1,0 +1,16 @@
+{% extends 'blogapp/base.html' %}
+{% block content %}
+<h4>{{ user_obj.username }} 的粉丝</h4>
+<ul class="list-group">
+    {% for profile in followers %}
+        <li class="list-group-item">
+            <a href="{% url 'user_profile' profile.user.username %}">
+                <img src="{{ profile.avatar.url }}" width="40" height="40" class="rounded-circle me-2">
+                {{ profile.user.username }}
+            </a>
+        </li>
+    {% empty %}
+        <li class="list-group-item text-muted">暂无粉丝</li>
+    {% endfor %}
+</ul>
+{% endblock %}

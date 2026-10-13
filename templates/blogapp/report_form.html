@@ -1,0 +1,14 @@
+{% extends 'blogapp/base.html' %}
+{% block title %}举报{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h4>举报{{ report_type|title }}</h4>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-danger">提交举报</button>
+        <a href="javascript:history.back()" class="btn btn-secondary">返回</a>
+    </form>
+</div>
+{% endblock %}

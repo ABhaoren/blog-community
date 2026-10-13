@@ -1,0 +1,19 @@
+
+<h5>🎖 排行榜 - {{ game_name }}</h5>
+<ol>
+{% for score in scores %}
+  <li>{{ score.user.username }} - {{ score.score }} 分</li>
+{% empty %}
+  <p>暂无记录</p>
+{% endfor %}
+</ol>
+
+<script>
+function loadLeaderboard(game) {
+    fetch(`/games/${game}/leaderboard/`)
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById('leaderboard').innerHTML = html;
+        });
+}
+</script>

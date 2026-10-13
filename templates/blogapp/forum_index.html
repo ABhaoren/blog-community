@@ -1,0 +1,68 @@
+{% extends 'blogapp/base.html' %}
+{% block title %}讨论区{% endblock %}
+{% block content %}
+<h2>📣 讨论区</h2>
+    <form method="get" class="mb-3 d-flex">
+  <input type="text" name="q" value="{{ query }}" class="form-control me-2" placeholder="搜索帖子...">
+  <button class="btn btn-outline-secondary" type="submit">🔍 搜索</button>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <a class="btn btn-primary" href="{% url 'forum_new' %}">➕ 发起新帖</a>
+  <div>
+    <a href="?sort=latest" class="btn btn-outline-secondary {% if sort == 'latest' %}active{% endif %}">🕒 最新</a>
+    <a href="?sort=hot" class="btn btn-outline-secondary {% if sort == 'hot' %}active{% endif %}">🔥 热门</a>
+    <a href="?sort=featured" class="btn btn-outline-secondary {% if sort == 'featured' %}active{% endif %}">🌟 精华</a>
+  </div>
+</div>
+
+
+<ul class="list-group">
+{% for post in posts %}
+  <li class="list-group-item {% if post.is_pinned %}list-group-item-warning{% endif %}">
+    <a href="{% url 'forum_detail' post.id %}">
+      {% if post.is_pinned %}📌 {% endif %}
+      {{ post.title }}
+    </a>
+
+    {% if post.is_featured %}
+      <span class="badge bg-success ms-2">精华</span>
+    {% endif %}
+    
+    <br>
+    <small class="text-muted">
+      👍 {{ post.likes.count }} · 👀 {{ post.views }} · {{ post.created_at|date:"Y-m-d H:i" }}
+    </small>
+  </li>
+      {% empty %}
+    <li class="list-group-item">暂无帖子</li>
+{% endfor %}
+
+
+
+</ul>
+    <nav>
+  <ul class="pagination justify-content-center">
+    {% if posts.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">上一页</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">上一页</span></li>
+    {% endif %}
+
+    {% for page_num in posts.paginator.page_range %}
+      {% if page_num == posts.number %}
+        <li class="page-item active"><span class="page-link">{{ page_num }}</span></li>
+      {% else %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_num }}{% if sort %}&sort={{ sort }}{% endif %}">{{ page_num }}</a></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if posts.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ posts.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">下一页</a></li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">下一页</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% endblock %}

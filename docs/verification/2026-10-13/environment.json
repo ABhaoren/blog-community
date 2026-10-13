@@ -1,0 +1,23 @@
+{
+  "time": "2026-10-13T12:37:41.667373+08:00",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "[REDACTED_LOCAL_PATH]",
+  "dependency_source": "existing project .venv/Lib/site-packages",
+  "versions": {
+    "Django": "5.2.1",
+    "openai": "1.82.1",
+    "python-dotenv": "1.0.1",
+    "Pillow": "11.2.1",
+    "mysqlclient": "2.2.7"
+  },
+  "original_venv_launch": "failed: original Python312 executable missing after computer reset",
+  "database": "fresh isolated SQLite, no original data copied",
+  "model_key_present": true,
+  "model_host": "api.deepseek.com",
+  "model_name": "deepseek-chat",
+  "http_timeout_override": 45,
+  "http_max_retries_override": 0,
+  "redacted_fields": [
+    "python_executable"
+  ]
+}

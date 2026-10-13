@@ -1,0 +1,129 @@
+{% extends 'blogapp/base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+{% if post.is_pinned %}📌{% endif %}
+{% if post.is_featured %}✨{% endif %}
+    <h2>{{ post.title }}</h2>
+    <p class="text-muted">
+        作者：
+        <a href="{% url 'user_profile' post.author.username %}">
+            <img src="{{ post.author.userprofile.avatar.url }}" width="40" height="40" class="rounded-circle me-2" alt="头像">
+            {{ post.author.username }}
+        </a> ｜ 发布时间：{{ post.created_at|date:"Y-m-d H:i" }}
+      {% if post.id %}
+    <a href="{% url 'report' 'user' post.author.id %}" class="text-danger">举报该用户</a>
+{% endif %}
+
+
+    </p>
+
+    <div class="mb-4">{{ post.content|safe }}</div>
+    <button id="like-post-btn" class="btn btn-sm btn-outline-danger">
+    ❤️ {{ post.likes.count }} 点赞
+    </button>
+    
+    {% if user.is_authenticated %}
+    <button id="collect-post-btn" class="btn btn-sm btn-outline-warning">
+        {% if user in post.collectors.all %}取消收藏{% else %}收藏{% endif %}
+    </button>
+    {% endif %}
+{% if request.user.is_staff %}
+  <div class="mb-2">
+    <a href="{% url 'toggle_featured' post.id %}" class="btn btn-sm btn-outline-success">
+      {% if post.is_featured %}取消精华{% else %}设为精华{% endif %}
+    </a>
+    <a href="{% url 'toggle_pinned' post.id %}" class="btn btn-sm btn-outline-warning">
+      {% if post.is_pinned %}取消置顶{% else %}设为置顶{% endif %}
+    </a>
+    <a href="{% url 'toggle_status' post.id %}" class="btn btn-sm btn-outline-secondary">
+      {% if post.status == 'open' %}关闭评论{% else %}开放评论{% endif %}
+    </a>
+  </div>
+{% endif %}
+
+
+
+    {% if post.attachments.all %}
+      <h5>📎 附件：</h5>
+      <ul>
+        {% for att in post.attachments.all %}
+          <li><a href="{{ att.file.url }}" target="_blank">{{ att.file.name|cut:"forum/" }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <hr>
+    <h4>评论区</h4>
+    {% for reply in replies %}
+        {% include "blogapp/reply_recursive.html" with reply=reply user=user %}
+    {% empty %}
+        <p class="text-muted">暂无评论。</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+        <hr>
+        <div id="replying-to" class="mb-2 text-info" style="display: none;">
+            正在回复 <strong id="reply-user"></strong>...
+            <a href="#" onclick="cancelReply(); return false;" class="text-danger small ms-2">取消</a>
+        </div>
+        <h5>发表评论：</h5>
+        {% if post.status == 'open' %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.media }}
+                {{ form.as_p }}
+                <input type="hidden" name="parent_id" id="parent-id-input">
+                <button type="submit" class="btn btn-primary">提交评论</button>
+            </form>
+                {% else %}
+          <p class="text-muted">该帖已关闭评论。</p>
+        {% endif %}
+    {% else %}
+        <p>请 <a href="{% url 'login' %}?next={{ request.path }}">登录</a> 后发表评论。</p>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.reply-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const replyId = this.dataset.replyId;
+            const username = this.dataset.username;
+
+            document.getElementById('parent-id-input').value = replyId;
+            document.getElementById('reply-user').textContent = username;
+            document.getElementById('replying-to').style.display = 'block';
+
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        });
+    });
+});
+
+function cancelReply() {
+    document.getElementById('parent-id-input').value = '';
+    document.getElementById('replying-to').style.display = 'none';
+}
+</script>
+    <script>
+document.getElementById("like-post-btn").addEventListener("click", function() {
+    fetch("{% url 'toggle_forum_like' post.id %}")
+        .then(res => res.json())
+        .then(data => {
+            this.innerHTML = data.liked ? `❤️ ${data.likes_count} 已点赞` : `🤍 ${data.likes_count} 点赞`;
+        });
+});
+
+document.getElementById("collect-post-btn")?.addEventListener("click", function () {
+    fetch("{% url 'toggle_forum_collect' post.id %}")
+        .then(response => response.json())
+        .then(data => {
+            this.textContent = data.collected ? "取消收藏" : "收藏";
+        });
+});
+</script>
+
+{% endblock %}

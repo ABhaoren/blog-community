@@ -1,0 +1,25 @@
+.env
+# Local environment variants; keep only the public configuration template.
+/.env.*
+!/.env.example
+__pycache__/
+*.py[cod]
+.idea/
+.DS_Store
+Thumbs.db
+.venv/
+/venv/
+/env/
+.pytest_cache/
+media/
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+# Runtime credentials and session files must not be published.
+credentials.json
+browser-session.json
+/logs/
+# Optional music assets are excluded from the recruitment portfolio.
+/static/music/*.mp3
+# Reviewed evidence in docs/verification remains eligible for commit.

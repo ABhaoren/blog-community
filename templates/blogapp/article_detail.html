@@ -1,0 +1,309 @@
+{% extends 'blogapp/base.html' %}
+
+{% block title %}文章详情{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ article.title }}</h2>
+    <p class="text-muted">
+        作者：
+        <a href="{% url 'user_profile' article.author.username %}">
+            <img src="{{ article.author.userprofile.avatar.url }}" width="40" height="40" class="rounded-circle me-2" alt="头像">
+            {{ article.author.username }}
+        </a>
+        | 分类：{{ article.category.name }} | 浏览量：{{ article.views }}
+    </p>
+
+    <!-- 文章内容 -->
+    <div class="mb-4">{{ article.content|safe|linebreaks }}</div>
+
+    <!-- 点赞按钮 -->
+    <button id="like-article-btn" class="btn btn-sm btn-outline-danger">
+        ❤️ {{ article.likes.count }} 点赞
+    </button>
+    <script>
+        document.getElementById("like-article-btn").addEventListener("click", function() {
+            fetch("{% url 'toggle_article_like' article.id %}")
+                .then(res => res.json())
+                .then(data => {
+                    this.innerHTML = data.liked ? `❤️ ${data.likes_count} 已点赞` : `🤍 ${data.likes_count} 点赞`;
+                });
+        });
+    </script>
+
+    {% if user.is_authenticated %}
+    <!-- 收藏按钮 -->
+    <button id="collect-btn" class="btn btn-outline-warning">
+        {% if user in article.collectors.all %}取消收藏{% else %}收藏{% endif %}
+    </button>
+    <script>
+        document.getElementById('collect-btn').addEventListener('click', function () {
+            fetch("{% url 'toggle_collect' article.id %}")
+                .then(response => response.json())
+                .then(data => {
+                    this.textContent = data.collected ? "取消收藏" : "收藏";
+                });
+        });
+    </script>
+    {% endif %}
+
+    <!-- AI解析按钮 -->
+    <button id="ai-analyze-btn" class="btn btn-sm btn-outline-info mt-3" onclick="analyzeArticle()">AI 解析文章</button>
+
+    <!-- AI 解析结果显示区域 -->
+<div id="ai-analysis" style="display:none; margin-top: 20px; padding: 20px; background-color: #f7f7f7; border-radius: 8px; border: 1px solid #ccc;">
+    <h5 style="font-size: 1.25rem; font-weight: bold;">AI 解析结果：</h5>
+    <div id="analysis-content" style="white-space: pre-wrap; line-height: 1.5; word-wrap: break-word; margin-top: 10px;">
+        <!-- AI 解析结果会显示在这里 -->
+    </div>
+</div>
+
+
+    <hr>
+    <h4>评论区</h4>
+
+    {% for comment in comments %}
+        <div class="border p-3 mb-3">
+            <p>
+                <img src="{{ comment.user.userprofile.avatar.url }}" class="rounded-circle me-2" width="40" height="40" alt="头像">
+                <strong>{{ comment.user.username }}</strong>：
+                {{ comment.content|safe }}
+
+            </p>
+            <p class="text-muted" style="font-size: 0.9em;">评论时间：{{ comment.created_at|date:"Y-m-d H:i" }}</p>
+            <div class="mb-3">
+                <button class="btn btn-sm btn-outline-secondary like-comment-btn" data-id="{{ comment.id }}">
+                    👍 {{ comment.likes.count }}
+                </button>
+            </div>
+
+            <div class="mb-2">
+                <button class="btn btn-sm btn-outline-secondary reply-btn" data-comment-id="{{ comment.id }}">回复</button>
+                {% if comment.user == user %}
+                    <form method="post" action="{% url 'delete_comment' comment.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+                    </form>
+                {% endif %}
+                <a href="{% url 'report' 'article' comment.user.id %}" class="text-danger">举报</a>
+            </div>
+
+            <!-- 回复和追评 -->
+            {% for reply in comment.replies.all %}
+                {% include "blogapp/comment_recursive.html" with comment=reply user=user %}
+            {% endfor %}
+        </div>
+    {% empty %}
+        <p class="text-muted">暂无评论。</p>
+    {% endfor %}
+
+    {% if article.attachments.all %}
+    <h5>📎 附件列表：</h5>
+    <ul>
+        {% for att in article.attachments.all %}
+            <li><a href="{{ att.file.url }}" target="_blank">{{ att.file.name|cut:"attachments/" }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+    <hr>
+    <h5>发表评论：</h5>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="parent_id" value="">
+        <input type="hidden" name="is_followup" value="0">
+        <textarea name="content" rows="4" class="form-control mb-2" placeholder="输入评论内容..."></textarea>
+        <button type="submit" class="btn btn-primary">提交评论</button>
+    </form>
+    {% else %}
+        <p>请 <a href="{% url 'login' %}?next={{ request.path }}">登录</a> 后发表评论。</p>
+    {% endif %}
+</div>
+<style>
+.ai-analysis-content h3 {
+    font-size: 1.1em;
+    margin: 1em 0 0.4em;
+    font-weight: bold;
+}
+
+.ai-analysis-content p {
+    margin: 0.4em 0;
+    line-height: 1.6;
+}
+
+.ai-analysis-content ul {
+    margin-left: 1.2em;
+    padding-left: 0.6em;
+}
+
+.ai-analysis-content li {
+    margin: 0.2em 0;
+    line-height: 1.5;
+}
+
+.ai-analysis-content strong {
+    font-weight: 600;
+}
+
+.ai-analysis-flat p {
+    margin: 0.6em 0;
+    line-height: 1.7;
+    font-size: 16px;
+    text-indent: 0; /* 无缩进 */
+}
+
+.ai-analysis-flat strong {
+    font-weight: bold;
+}
+
+
+</style>
+
+    
+<script>
+    // 点赞评论功能
+    document.querySelectorAll('.like-comment-btn').forEach(function(btn) {
+        btn.addEventListener('click', function () {
+            const commentId = this.dataset.id;
+            fetch(`/comment/${commentId}/like/`)
+                .then(res => res.json())
+                .then(data => {
+                    this.innerHTML = data.liked ? `👍 ${data.likes_count} 已赞` : `👍 ${data.likes_count}`;
+                });
+        });
+    });
+
+    // 回复功能
+    document.addEventListener('DOMContentLoaded', function () {
+        let currentReplyForm = null;
+
+        document.querySelectorAll('.reply-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const parentId = this.dataset.commentId;
+
+                // 删除旧回复框
+                if (currentReplyForm) {
+                    currentReplyForm.remove();
+                    document.querySelectorAll('.reply-btn').forEach(btn => btn.disabled = false);
+                    if (currentReplyForm.dataset.parentId === parentId) {
+                        currentReplyForm = null;
+                        return;
+                    }
+                }
+
+                // 创建新回复框
+                const form = document.createElement('form');
+                form.method = 'post';
+                form.innerHTML = `
+                    {% csrf_token %}
+                    <input type="hidden" name="parent_id" value="${parentId}">
+                    <input type="hidden" name="is_followup" value="0">
+                    <textarea name="content" class="form-control mb-2 reply-textarea" rows="3" placeholder="输入回复内容..."></textarea>
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-sm btn-primary">提交</button>
+                        <span class="emoji-picker-trigger" style="cursor:pointer;">😊 插入表情</span>
+                    </div>
+                `;
+                form.className = "mt-2";
+                form.dataset.parentId = parentId;
+
+                this.insertAdjacentElement('afterend', form);
+                this.disabled = true;
+                currentReplyForm = form;
+
+                // emoji 插入
+                form.querySelector('.emoji-picker-trigger').addEventListener('click', function () {
+                    const textarea = form.querySelector('textarea');
+                    textarea.value += "😊";
+                    textarea.focus();
+                });
+            });
+        });
+    });
+
+    // AI 解析文章功能
+    function analyzeArticle() {
+        // 禁用按钮，防止重复点击
+        document.getElementById('ai-analyze-btn').disabled = true;
+        document.getElementById('ai-analysis').style.display = 'block';
+
+        // 发送请求到后端进行文章解析
+        fetch("{% url 'ai_parse_article' article.id %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+            // 显示解析结果
+            document.getElementById('analysis-content').innerHTML = formatAnalysis(data.reply);
+
+            // 启用按钮
+            document.getElementById('ai-analyze-btn').disabled = false;
+        })
+        .catch(err => {
+            console.error("解析失败:", err);
+            document.getElementById('analysis-content').textContent = "AI解析失败，请稍后再试。";
+        });
+    }
+
+function escapeHTML(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function cleanAIHTML(rawHtml) {
+    // 清除非法标签嵌套，例如 h3 中嵌 ul/li
+    const cleaned = rawHtml
+        .replace(/<h3[^>]*>\s*<ul[^>]*>/gi, '<h3>')
+        .replace(/<\/ul>\s*<\/h3>/gi, '</h3>')
+        .replace(/<ul[^>]*>\s*<li[^>]*>-\s*<\/li>/gi, '<ul>')
+        .replace(/<li[^>]*>-\s*<\/li>/gi, '') // 删除空的"-"
+        .replace(/<h3>#\s*/g, '<h3>') // 去掉“#”
+        .replace(/<strong><ul><li>\d+\.\s*<\/li>/g, '<strong>'); // 去掉多余 li 包裹的序号
+
+    return cleaned;
+}
+
+function formatAnalysis(rawHtml) {
+    let content = rawHtml;
+
+    // 1. 去掉所有列表、标题、嵌套结构，只保留段落和加粗
+    content = content.replace(/<ul[^>]*>/gi, '');
+    content = content.replace(/<\/ul>/gi, '');
+    content = content.replace(/<li[^>]*>/gi, '');
+    content = content.replace(/<\/li>/gi, '');
+
+    content = content.replace(/<h\d[^>]*>/gi, '<p><strong>');
+    content = content.replace(/<\/h\d>/gi, '</strong></p>');
+
+    // 2. 替换换行符为段落（以防内容中是纯文本）
+    content = content.replace(/\r\n/g, '\n');
+    const lines = content.split('\n');
+
+    let final = '';
+    lines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed.length > 0) {
+            final += `<p>${trimmed}</p>\n`;
+        }
+    });
+
+    // 3. 清除重复空段、空格符
+    final = final.replace(/<p>\s*<\/p>/g, '');
+    final = final.replace(/\s{3,}/g, ' ');
+
+    return `<div class="ai-analysis-flat">${final}</div>`;
+}
+
+
+
+
+</script>
+{% endblock %}

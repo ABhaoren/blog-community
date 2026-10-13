@@ -1,0 +1,47 @@
+{
+  "time": "2026-10-13 12:41:50 +08:00",
+  "case": "V3",
+  "browser": "155.0.4283.45",
+  "url": "http://127.0.0.1:18765/article/1/",
+  "request": {
+    "method": "POST",
+    "url": "http://127.0.0.1:18765/article/1/ai_parse/",
+    "body": "{}",
+    "csrf_header_present": true,
+    "authorization_header_present": false
+  },
+  "response": {
+    "status": 302,
+    "content_type": "text/html; charset=utf-8",
+    "location": "/accounts/login/?next=/article/1/ai_parse/",
+    "json": null
+  },
+  "response_chain": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:18765/article/1/ai_parse/",
+      "status": 302,
+      "content_type": "text/html; charset=utf-8",
+      "location": "/accounts/login/?next=/article/1/ai_parse/"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:18765/accounts/login/?next=/article/1/ai_parse/",
+      "status": 200,
+      "content_type": "text/html; charset=utf-8",
+      "location": null
+    }
+  ],
+  "duration_ms": 81,
+  "ui": {
+    "analysis_text": "AI解析失败，请稍后再试。",
+    "button_disabled": true
+  },
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "解析失败: SyntaxError: Unexpected token '<', \"\n\n\n<!DOCTYPE \"... is not valid JSON"
+  ],
+  "model_requests_before": 1,
+  "model_requests_after": 1,
+  "screenshot": "v3.png"
+}

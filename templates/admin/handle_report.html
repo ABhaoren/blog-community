@@ -1,0 +1,50 @@
+{# templates/admin/handle_report.html #}
+{% extends 'admin/base_site.html' %}
+{% load static %}
+{% block title %}处理举报{% endblock %}
+{% block content %}
+
+<h2>🚨 处理举报</h2>
+
+<table class="table table-bordered">
+  <tr>
+    <th>举报类型</th>
+    <td>{{ report.get_report_type_display }}</td>
+  </tr>
+  <tr>
+    <th>目标 ID</th>
+    <td>{{ report.target_id }}</td>
+  </tr>
+  <tr>
+    <th>举报人</th>
+    <td>{{ report.reporter.username }}</td>
+  </tr>
+  <tr>
+    <th>举报理由</th>
+    <td>{{ report.reason }}</td>
+  </tr>
+  <tr>
+    <th>详细描述</th>
+    <td>{{ report.detail|default:"无" }}</td>
+  </tr>
+  <tr>
+    <th>举报时间</th>
+    <td>{{ report.created_at }}</td>
+  </tr>
+</table>
+
+<form method="post" class="mb-3">
+  {% csrf_token %}
+
+  {% if report.report_type == 'user' %}
+    <button name="action" value="ban_7" class="btn btn-warning">封禁 7 天</button>
+    <button name="action" value="ban_permanent" class="btn btn-danger">永久封禁</button>
+
+  {% elif report.report_type in 'article,post,comment,reply' %}
+    <button name="action" value="delete" class="btn btn-danger">删除该内容</button>
+  {% endif %}
+
+  <a href="{% url 'admin:blogapp_report_changelist' %}" class="btn btn-secondary ms-2">取消</a>
+</form>
+
+{% endblock %}

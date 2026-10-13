@@ -1,0 +1,2 @@
+{"time": "2026-10-13T12:41:16.122116+08:00", "event": "model_request", "host": "api.deepseek.com", "model": "deepseek-chat", "mode": "real_provider", "max_retries": 0, "timeout_seconds": 45}
+{"time": "2026-10-13T12:41:18.400132+08:00", "event": "model_success", "response_model": "deepseek-flash", "usage": {"completion_tokens": 233, "prompt_tokens": 77, "total_tokens": 310, "completion_tokens_details": null, "prompt_tokens_details": {"audio_tokens": null, "cached_tokens": 0}, "prompt_cache_hit_tokens": 0, "prompt_cache_miss_tokens": 77}}

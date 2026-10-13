@@ -1,0 +1,171 @@
+{% extends 'blogapp/base.html' %}
+{% block title %}用户主页{% endblock %}
+
+{% block content %}
+<!-- 个人信息区域 -->
+<div class="d-flex align-items-center mb-3">
+    <img src="{{ user_obj.userprofile.avatar.url }}" class="rounded-circle me-3" width="80" height="80">
+    <div>
+        <h4>{{ user_obj.username }}</h4>
+        <p class="text-muted">个性签名：{{ user_obj.userprofile.signature|default:"这个人很神秘。" }}</p>
+        <p class="text-muted">注册时间：{{ user_obj.date_joined|date:"Y年m月d日" }}</p>
+    </div>
+</div>
+
+<!-- 粉丝 / 关注 -->
+<p class="text-muted">
+    <a href="{% url 'followers_list' user_obj.username %}">粉丝 {{ user_obj.userprofile.followers.count }}</a> ｜ 
+    <a href="{% url 'following_list' user_obj.username %}">关注 {{ user_obj.userprofile.following.count }}</a>
+</p>
+
+<!-- 关注按钮 -->
+{% if user.is_authenticated and user != user_obj %}
+    <button id="follow-btn" class="btn btn-sm btn-outline-primary">
+        {% if is_following %}
+            取消关注
+        {% else %}
+            关注
+        {% endif %}
+    </button>
+{% endif %}
+
+<!-- Tab导航 -->
+<ul class="nav nav-tabs mt-4" id="profileTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-articles" data-bs-toggle="tab" data-bs-target="#articles" type="button">文章</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-collections" data-bs-toggle="tab" data-bs-target="#collections" type="button">收藏</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-liked" data-bs-toggle="tab" data-bs-target="#liked" type="button">点赞</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-comments" data-bs-toggle="tab" data-bs-target="#comments" type="button">评论</button>
+    </li>
+</ul>
+
+<!-- Tab内容 -->
+<div class="tab-content border rounded-bottom p-3">
+<div class="tab-pane fade show active" id="articles" role="tabpanel">
+    <h5>Ta 的文章</h5>
+    <ul class="list-group">
+        {% for article in articles %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                    <span class="text-muted"> · {{ article.created_at|date:"Y-m-d H:i" }}</span>
+                </div>
+                {% if user == article.author %}
+                    <div class="btn-group">
+                        <a href="{% url 'article_edit' article.id %}" class="btn btn-sm btn-outline-primary">编辑</a>
+                        <form method="post" action="{% url 'article_delete' article.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('确认删除该文章？')">删除</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </li>
+        {% empty %}
+            <li class="list-group-item text-muted">暂无发布</li>
+        {% endfor %}
+    </ul>
+<h5>Ta 发起的讨论帖：</h5>
+<ul class="list-group mb-4">
+  {% for dp in discussion_posts %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <div>
+        <a href="{% url 'forum_detail' dp.id %}">{{ dp.title }}</a>
+        <span class="text-muted"> · {{ dp.created_at|date:"Y-m-d H:i" }}</span>
+      </div>
+      {% if request.user == dp.author %}
+        <div>
+          <a href="{% url 'forum_edit' dp.id %}" class="btn btn-sm btn-outline-secondary">编辑</a>
+          <form method="post" action="{% url 'forum_delete' dp.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除该帖子？')">删除</button>
+          </form>
+        </div>
+      {% endif %}
+    </li>
+  {% empty %}
+    <li class="list-group-item text-muted">暂无讨论帖</li>
+  {% endfor %}
+</ul>
+
+
+</div>
+
+
+    <div class="tab-pane fade" id="collections" role="tabpanel">
+        <h5>Ta 收藏的文章</h5>
+        <ul class="list-group">
+            {% for article in collections %}
+                <li class="list-group-item">
+                    <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">暂无收藏</li>
+            {% endfor %}
+        </ul>
+    <h5>Ta 收藏的讨论帖：</h5>
+    <ul class="list-group">
+      {% for post in user_obj.collected_posts.all %}
+        <li class="list-group-item">
+          <a href="{% url 'forum_detail' post.id %}">{{ post.title }}</a>
+        </li>
+      {% empty %}
+        <li class="list-group-item text-muted">暂无收藏</li>
+      {% endfor %}
+    </ul>
+
+    </div>
+
+    <div class="tab-pane fade" id="liked" role="tabpanel">
+        <h5>Ta 点赞的文章</h5>
+        <ul class="list-group">
+            {% for article in liked_articles %}
+                <li class="list-group-item">
+                    <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">暂无点赞</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="tab-pane fade" id="comments" role="tabpanel">
+        <h5>Ta 的评论</h5>
+        <ul class="list-group">
+            {% for comment in comments %}
+                <li class="list-group-item">
+                    <a href="{% url 'article_detail' comment.article.id %}">《{{ comment.article.title }}》</a><br>
+                    {{ comment.content|truncatechars:80 }}
+                    <small class="text-muted float-end">{{ comment.created_at|date:"Y-m-d H:i" }}</small>
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted">暂无评论</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- 关注按钮脚本 -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const followBtn = document.getElementById('follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function () {
+            fetch("{% url 'toggle_follow' user_obj.username %}")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.followed !== undefined) {
+                        followBtn.textContent = data.followed ? "取消关注" : "关注";
+                        location.reload();  // 刷新页面更新粉丝数
+                    }
+                });
+        });
+    }
+});
+</script>
+{% endblock %}

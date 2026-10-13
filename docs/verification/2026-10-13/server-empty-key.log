@@ -1,0 +1,7 @@
+[13/Oct/2026 12:41:52] "GET /article/2/ HTTP/1.1" 200 16328
+Not Found: /media/avatars/default.png
+[13/Oct/2026 12:41:52] "GET /media/avatars/default.png HTTP/1.1" 404 20828
+Not Found: /favicon.ico
+[13/Oct/2026 12:41:53] "GET /favicon.ico HTTP/1.1" 404 20539
+Service Unavailable: /article/2/ai_parse/
+[13/Oct/2026 12:41:53] "POST /article/2/ai_parse/ HTTP/1.1" 503 58

@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>🎵 博客背景音乐播放器</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #141e30, #243b55);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    #player-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+      padding: 30px 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      text-align: center;
+      width: 300px;
+    }
+
+    #player-container h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .music-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    #close-btn {
+      margin-top: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #close-btn:hover {
+      background-color: #e63946;
+    }
+  </style>
+</head>
+<body>
+  <div id="player-container">
+    <div class="music-icon">🎶</div>
+    <h2>正在播放：博客背景音乐</h2>
+    <audio src="{% static 'music/song1.mp3' %}" autoplay loop controls></audio>
+    <button id="close-btn" onclick="window.close()">关闭播放器</button>
+  </div>
+</body>
+</html>
+

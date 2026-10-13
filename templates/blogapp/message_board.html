@@ -1,0 +1,65 @@
+{% extends 'blogapp/base.html' %}
+{% block title %}留言板{% endblock %}
+{% block content %}
+<h4>留言板</h4>
+<form method="post" class="mb-3">
+    {% csrf_token %}
+    <textarea name="content" class="form-control" rows="3" placeholder="写下你的留言..." required></textarea>
+    <button class="btn btn-primary mt-2" type="submit">留言</button>
+</form>
+    
+<ul class="list-group">
+    {% for msg in page_obj %}
+        <li class="list-group-item">
+            <strong>{{ msg.user.username }}</strong>：{{ msg.content }}<br>
+            <small class="text-muted">{{ msg.created_at|date:"Y-m-d H:i" }}</small>
+
+            <!-- 回复按钮 -->
+            <button class="btn btn-sm btn-link reply-btn mt-1" data-id="{{ msg.id }}">回复</button>
+
+            <!-- 回复表单 -->
+            <form method="post" class="reply-form d-none mt-2">
+                {% csrf_token %}
+                <input type="hidden" name="parent_id" value="{{ msg.id }}">
+                <textarea name="content" class="form-control" rows="2" placeholder="回复内容..." required></textarea>
+                <button class="btn btn-secondary btn-sm mt-1" type="submit">提交回复</button>
+            </form>
+
+            <!-- 回复展示 -->
+            {% for r in msg.replies.all %}
+                <div class="mt-2 ms-4 border-start ps-2">
+                    <strong>{{ r.user.username }}</strong> 回复：{{ r.content }}<br>
+                    <small class="text-muted">{{ r.created_at|date:"Y-m-d H:i" }}</small>
+                </div>
+            {% endfor %}
+        </li>
+    {% endfor %}
+</ul>
+<nav class="mt-3">
+  <ul class="pagination">
+    {% if page_obj.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a></li>
+    {% endif %}
+    {% for page_num in page_obj.paginator.page_range %}
+      <li class="page-item {% if page_obj.number == page_num %}active{% endif %}">
+        <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+      </li>
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+<script>
+document.querySelectorAll('.reply-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const form = this.nextElementSibling;
+        form.classList.toggle('d-none');
+    });
+});
+</script>
+    
+    
+{% endblock %}

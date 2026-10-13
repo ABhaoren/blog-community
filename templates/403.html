@@ -1,0 +1,21 @@
+{% extends "blogapp/base.html" %}
+{% block title %}访问被拒绝{% endblock %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <h2 class="text-danger">⚠️ 访问被拒绝</h2>
+  <p class="mt-3">你的账号已被封禁，暂时无法使用本站功能。</p>
+
+  {% if request.session.ban_expiration %}
+    <p class="text-danger">账号封禁至 {{ request.session.ban_expiration }}</p>
+    {% templatetag opencomment %} 清除封禁信息 {% templatetag closecomment %}
+    {% with None as unused %}{% firstof unused %}{% endwith %}
+    {% comment %} 临时传值，页面展示后立即清除 {% endcomment %}
+    {% load static %}
+    <script>
+      fetch("{% url 'clear_ban_session' %}");
+    </script>
+  {% endif %}
+
+  <a href="{% url 'article_list' %}" class="btn btn-primary mt-3">返回首页</a>
+</div>
+{% endblock %}

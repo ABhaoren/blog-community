@@ -1,0 +1,145 @@
+{% extends 'blogapp/base.html' %}
+{% load static %}
+{% block content %}
+  <style>
+    body { text-align: center; font-family: sans-serif; }
+    table { margin: auto; border-spacing: 5px; background: #bbada0; }
+    td { width: 60px; height: 60px; font-size: 24px; background: #cdc1b4; text-align: center; vertical-align: middle; }
+    .score { margin: 10px; font-size: 20px; }
+  </style>
+
+<h2>🧩 本地 2048 游戏</h2>
+<div class="score">得分：<span id="score">0</span></div>
+<button onclick="startGame()">重新开始</button>
+<table id="grid"></table>
+
+<!-- 🔽 添加排行榜容器 -->
+<div id="leaderboard" style="max-width:400px;margin:auto;margin-top:20px;"></div>
+
+<script>
+let gridSize = 4, score = 0;
+let grid = [];
+
+function createGrid() {
+  grid = Array.from({length: gridSize}, () => Array(gridSize).fill(0));
+  const gridTable = document.getElementById("grid");
+  gridTable.innerHTML = '';
+  for (let r = 0; r < gridSize; r++) {
+    const row = document.createElement("tr");
+    for (let c = 0; c < gridSize; c++) {
+      const cell = document.createElement("td");
+      cell.innerHTML = '';
+      row.appendChild(cell);
+    }
+    gridTable.appendChild(row);
+  }
+}
+
+function updateGrid() {
+  const cells = document.querySelectorAll("td");
+  cells.forEach((cell, i) => {
+    const r = Math.floor(i / gridSize);
+    const c = i % gridSize;
+    cell.textContent = grid[r][c] || '';
+    cell.style.background = grid[r][c] ? "#eee4da" : "#cdc1b4";
+  });
+  document.getElementById("score").textContent = score;
+}
+
+function spawn() {
+  let empty = [];
+  for (let r = 0; r < gridSize; r++)
+    for (let c = 0; c < gridSize; c++)
+      if (grid[r][c] === 0) empty.push([r, c]);
+  if (empty.length === 0) return;
+  const [r, c] = empty[Math.floor(Math.random() * empty.length)];
+  grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+}
+
+function combine(line) {
+  let arr = line.filter(n => n);
+  for (let i = 0; i < arr.length - 1; i++) {
+    if (arr[i] === arr[i + 1]) {
+      arr[i] *= 2;
+      score += arr[i];
+      arr[i + 1] = 0;
+    }
+  }
+  return arr.filter(n => n).concat(Array(gridSize - arr.filter(n => n).length).fill(0));
+}
+
+function move(dir) {
+  let moved = false;
+  if (dir === 'left') {
+    for (let r = 0; r < gridSize; r++) {
+      let newRow = combine(grid[r]);
+      if (grid[r].join() !== newRow.join()) moved = true;
+      grid[r] = newRow;
+    }
+  } else if (dir === 'right') {
+    for (let r = 0; r < gridSize; r++) {
+      let newRow = combine(grid[r].slice().reverse()).reverse();
+      if (grid[r].join() !== newRow.join()) moved = true;
+      grid[r] = newRow;
+    }
+  } else if (dir === 'up' || dir === 'down') {
+    for (let c = 0; c < gridSize; c++) {
+      let col = [];
+      for (let r = 0; r < gridSize; r++) col.push(grid[r][c]);
+      col = dir === 'up' ? combine(col) : combine(col.reverse()).reverse();
+      for (let r = 0; r < gridSize; r++) {
+        if (grid[r][c] !== col[r]) moved = true;
+        grid[r][c] = col[r];
+      }
+    }
+  }
+  if (moved) {
+    spawn();
+    updateGrid();
+  }
+}
+
+function submitScore(score) {
+  fetch("/api/game/submit_score/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({game: "2048", score: score})  // ✅ 修正了 game 字段
+  }).then(() => loadLeaderboard());
+}
+
+function startGame() {
+  submitScore(score);  // ✅ 游戏开始前先提交上次得分
+  score = 0;
+  createGrid();
+  spawn(); spawn();
+  updateGrid();
+}
+
+function loadLeaderboard() {
+  fetch("/games/2048/leaderboard/")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("leaderboard").innerHTML = html;
+    });
+}
+
+document.addEventListener("keydown", e => {
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+    e.preventDefault();  // 阻止页面滚动
+    const keys = {
+      "ArrowLeft": "left",
+      "ArrowRight": "right",
+      "ArrowUp": "up",
+      "ArrowDown": "down"
+    };
+    move(keys[e.key]);
+  }
+});
+
+
+window.onload = function () {
+  startGame();
+  loadLeaderboard();
+};
+</script>
+{% endblock %}

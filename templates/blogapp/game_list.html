@@ -1,0 +1,11 @@
+{% extends 'blogapp/base.html' %}
+{% block content %}
+<h4>🎮 小游戏</h4>
+<ul class="list-group">
+  {% for game in games %}
+    <li class="list-group-item">
+      <a href="{% url 'play_game' game.key %}">{{ game.name }}</a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
